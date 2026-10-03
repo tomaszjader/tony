@@ -1,4 +1,4 @@
-import {detectPitch} from './pitch.js?v=3-yin';
+import {detectPitch} from './pitch.js';
 export function contour(samples,rate){
   const factor=Math.max(1,Math.floor(rate/16000));
   if(factor>1){const reduced=new Float32Array(Math.floor(samples.length/factor));for(let i=0;i<reduced.length;i++)for(let j=0;j<factor;j++)reduced[i]+=samples[i*factor+j]/factor;samples=reduced;rate/=factor;}

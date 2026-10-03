@@ -1,21 +1,64 @@
-# Tony
+# Tony — mandaryński w przeglądarce
 
-Prototyp nauki tonów mandaryńskich w języku polskim.
+Aplikacja statyczna bez backendu, Pythona, kont użytkowników i własnych endpointów API. Analiza F0 (YIN), pinyin, frazy, nagrywanie, odtwarzanie i historia działają po stronie przeglądarki. Repozytorium Git ma gałąź `main`; pierwszy commit zachowuje wcześniejszą wersję z backendem.
 
-Uruchom `npm install`, następnie `npm start` i otwórz http://localhost:3000. Testy algorytmów: `npm test`.
+## Uruchomienie
 
-## Własne frazy
+```sh
+npm install
+npm start
+```
 
-Sekcja „Twoje frazy” zapisuje chińskie zdania i opcjonalne znaczenia w localStorage tej przeglądarki. Pinyin powstaje automatycznie z pinyin-pro. Wzorzec odtwarza się w tempie 1×, 0,8× lub 0,6×, z zachowaniem wysokości głosu. Tempo dostępne jest także dla pojedynczych sylab.
+Otwórz http://localhost:3000. Vite udostępnia wyłącznie pliki i narzędzia developerskie; nie przetwarza audio. Mikrofon wymaga localhost albo HTTPS.
 
-Nagranie całej frazy (do 20 sekund) lub wybrany plik audio jest rozpoznawany po zakończeniu lokalnie na CPU przez faster-whisper, model small. Wynik zawiera znaki, pinyin, wyrównane porównanie rozpoznanych sylab oraz wykres melodii nagrania i wzorca. Wykres normalizuje czas i wysokość głosu; nie wyrównuje granic sylab. Procent opisuje zgodność rozpoznanego tekstu, nie akustyczną poprawność wymowy ani tonów całego zdania. Model może zwrócić tradycyjne znaki; porównanie używa pinyin. Nie ma transkrypcji na żywo.
+```sh
+npm test
+npm run build
+npm run preview
+```
 
-Wymagania: Python 3.9+, `python -m pip install --user faster-whisper edge-tts`. Jednorazowo pobierz model: `python -c "from faster_whisper import WhisperModel; WhisperModel('small', device='cpu', compute_type='int8')"`. Model jest już przygotowany na tym komputerze. Transkrypcja korzysta z modelu w lokalnej pamięci podręcznej. Tymczasowe nagranie jest usuwane po analizie. Wygenerowane wzorce pozostają w `.cache/`.
+`dist/` zawiera gotowe pliki do dowolnego hostingu statycznego, również GitHub Pages w podkatalogu. Nie otwieraj index.html przez `file://`: moduły, mikrofon i pamięć offline potrzebują HTTP/HTTPS. Produkcyjna wersja ma manifest PWA i service worker: po pierwszym pełnym wczytaniu zachowuje pliki aplikacji i gotowe wzorce do pracy offline. Model Whisper jest pobierany i buforowany osobno.
 
-Generowanie własnego wzorca wymaga internetu: sam wpisany tekst przesyłany jest do syntezatora Microsoft przez edge-tts. Nagranie użytkownika nie jest wysyłane do zewnętrznej usługi. Serwer działa wyłącznie na 127.0.0.1.
+## Tryby transkrypcji
 
-8 sylab, 4 wzorce, gotowe mandaryńskie pliki MP3 (bez instalowania głosu systemowego), nagrywanie do 3 sekund, odsłuch i lokalna analiza F0 metodą YIN. Analiza dopasowuje okno do częstotliwości próbkowania, wybiera ciągły fragment głosu i pokazuje wykres bez punktacji przy niskiej pewności. Nagrania pojedynczych sylab są analizowane wyłącznie w przeglądarce. Google Fonts wymaga internetu; dostępne są fonty zastępcze.
+| Tryb | Gdzie analizowane jest audio | Klucz | Ograniczenia |
+| --- | --- | --- | --- |
+| Lokalnie, bez transkrypcji | Przeglądarka | Nie | Nagranie, odsłuch, wykres i ręczne porównanie znaków |
+| Whisper lokalnie | Web Worker w przeglądarce, WASM | Nie | Pierwszy raz pobiera model `Xenova/whisper-tiny` z Hugging Face; może być wolny i mylić mandaryński |
+| Usługa przeglądarki | Dostawca rozpoznawania przeglądarki | Nie | Wyniki na żywo, tylko podczas nowego nagrania; nie działa we wszystkich przeglądarkach i może wysyłać audio do dostawcy |
+| OpenAI | Bezpośrednio `api.openai.com` | Własny | Wysyła nagranie; płatne API, internet i uprawnienia do wybranego modelu |
 
-Ocena jest heurystyczna: porównuje kształt przebiegu w półtonach względem mediany głosu, nie rozpoznaje słów, poprawności samogłosek ani absolutnie wysokiego rejestru tonu 1. Wzorce dotyczą izolowanych sylab. Brak sandhi, kalibracji osobniczej i walidacji z nauczycielem. Przed zastosowaniem edukacyjnym należy przetestować różne głosy i mikrofony oraz porównać oceny z ocenami osoby znającej mandaryński.
+W ustawieniach można przygotować lokalny Whisper przed nagraniem. Pliki modelu i środowisko WASM są buforowane w przeglądarce; audio nie trafia do Hugging Face. Czyszczenie pamięci przeglądarki usuwa model i lokalne dane. Tryb lokalny działa na CPU przez WASM, bez wymagania WebGPU.
 
-Pliki `audio/*.mp3` wygenerowano jednorazowo głosem zh-CN-XiaoxiaoNeural przez edge-tts. Odtwarzanie korzysta wyłącznie z lokalnych plików. Opcjonalny skrypt regeneracji: `scripts/generate_audio.py` (wymaga edge-tts i internetu). Są to wzorce syntetyczne, nie nagrania nauczyciela.
+OpenAI domyślnie używa `gpt-transcribe`, z listą języków `zh`; dostępne są także `gpt-4o-mini-transcribe`, `gpt-4o-transcribe` i `whisper-1`. Audio jest konwertowane lokalnie do mono WAV, aby format był zgodny niezależnie od MediaRecorder. W żądaniu nie przekazujemy oczekiwanej frazy jako promptu, żeby nie sugerować rozpoznawania.
+
+## Własny klucz OpenAI
+
+Wklej klucz **w aplikacji**, kliknij „Użyj w tej karcie”, wybierz OpenAI jako tryb transkrypcji. Klucz pozostaje wyłącznie w zmiennej JS: nie zapisujemy go w localStorage, IndexedDB, plikach, logach ani Git. Pole jest czyszczone po zastosowaniu. Odświeżenie karty usuwa klucz; przycisk „Usuń klucz” usuwa go od razu.
+
+BYOK jest opcją do zaufanej osobistej kopii aplikacji. Klucza używanego w przeglądarce nie da się ukryć przed kodem strony ani rozszerzeniami. Nie umieszczaj wspólnego klucza w publicznie hostowanej aplikacji. OpenAI zaleca niewystawianie kluczy w kodzie i repozytorium. Nie dodawaj sekretów do `VITE_*` — trafiłyby do publicznego bundle. `.env*` są ignorowane przez Git.
+
+Klucza nie trzeba przekazywać do czatu. API obciąża konto OpenAI użytkownika. W tej sesji testy żądań używają odpowiedzi zastępczych, bez płatnych wywołań i bez klucza użytkownika.
+
+## Wzorce i nagrania
+
+- Osiem sylab i dwa przykładowe zdania mają dołączone pliki MP3, dostępne bez głosu systemowego.
+- Dla własnej frazy dodaj lokalny plik wzorca (np. nagranie nauczyciela) lub wybierz OpenAI do wygenerowania brakującego wzorca. Można też użyć systemowego głosu mandaryńskiego, jeśli jest zainstalowany.
+- OpenAI TTS: `gpt-4o-mini-tts`, głos `cedar`, instrukcja wymowy mandaryńskiej. Wysyłany jest tekst frazy, nie nagranie. Głos jest syntetyczny.
+- Wzorce i próby są zapisane w IndexedDB; teksty fraz w localStorage. Wyniki pozostają dostępne po odświeżeniu na tym samym originie. Limit nagrania frazy: 20 sekund; import do 8 MB. Wzorzec: do 30 sekund i 8 MB.
+- Historia pokazuje 20 najnowszych prób. Nagranie można otworzyć, usunąć, ponownie rozpoznać i pobrać. Próby sylab również zapisują się w historii. Pobierz ważne pliki: pamięć przeglądarki może być czyszczona lub usunięta przez użytkownika.
+- Odsłuch ma tempo 1×, 0,8× i 0,6× z zachowaniem wysokości głosu.
+
+## Granice oceny
+
+Ocena pojedynczej sylaby porównuje kształt głosu z uproszczonym wzorcem. Nie mierzy poprawności samogłosek, znaczenia ani wysokiego rejestru tonu 1 bez kalibracji. Porównanie całej frazy pokazuje rozpoznane znaki, ich pinyin i zgodność sylab. Procent nie jest oceną akustyczną tonów; pinyin pochodzi z tekstu. Wykres frazy normalizuje czas i wysokość, bez wyrównania granic sylab i bez sandhi. Wyniki należy zweryfikować na różnych głosach z nauczycielem mandaryńskiego.
+
+## Źródła i narzędzia
+
+- [OpenAI: transkrypcja](https://developers.openai.com/api/docs/guides/speech-to-text)
+- [OpenAI: generowanie mowy](https://developers.openai.com/api/docs/guides/text-to-speech)
+- [OpenAI: ochrona kluczy](https://developers.openai.com/api/docs/guides/production-best-practices#api-keys)
+- [Transformers.js](https://huggingface.co/docs/transformers.js/en/index) i [model Whisper Tiny](https://huggingface.co/Xenova/whisper-tiny)
+- [Vite: hosting statyczny](https://vite.dev/guide/static-deploy)
+
+Wzorce dołączone do projektu wygenerowano jednorazowo przez edge-tts, głosem `zh-CN-XiaoxiaoNeural`. Opcjonalny skrypt `scripts/generate_audio.py` służy wyłącznie do przygotowania plików przez autora; aplikacja go nie uruchamia i nie wymaga Pythona.

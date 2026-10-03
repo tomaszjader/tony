@@ -1,0 +1,13 @@
+<!doctype html><html lang="pl"><meta charset="utf-8"><title>Tony — browser smoke test</title><h1>Test przeglądarkowy</h1><pre id="result">Rozpoczynam…</pre><p id="progress"></p><script type="module">
+import {decodeAudio} from '../audio-utils.js';
+import {contour} from '../phrase-contour.js';
+import {localWhisper,resample16k} from '../local-whisper.js';
+import {saveAttempt,loadAttempts,deleteAttempt,saveReference,loadReference} from '../storage.js';
+const el=document.getElementById('result'),log=text=>el.textContent+='\n'+text;
+try{
+ const blob=await(await fetch('../audio/phrase1.mp3')).blob(),audio=await decodeAudio(blob);if(!contour(audio.samples,audio.rate).length)throw Error('No F0 contour');log('PASS: dekodowanie MP3 i wykres F0');
+ const id='browser-smoke';await saveAttempt({id,date:Date.now(),phrase:{text:'你好'},blob});const attempts=await loadAttempts();if(!attempts.some(a=>a.id===id&&a.blob.size===blob.size))throw Error('IndexedDB roundtrip');await deleteAttempt(id);log('PASS: zapis i odczyt audio w IndexedDB');
+ await saveReference('__smoke__',blob);if((await loadReference('__smoke__')).size!==blob.size)throw Error('Reference roundtrip');log('PASS: lokalny wzorzec audio');
+ const text=await localWhisper(resample16k(audio.samples,audio.rate),text=>document.getElementById('progress').textContent=text);log('WHISPER: '+text);if(!/[\p{Script=Han}]/u.test(text))throw Error('No Mandarin transcript');log('PASS: lokalna transkrypcja mandaryńska');log('ALL PASS');
+}catch(e){log('FAIL: '+e.message);}
+</script></html>

@@ -1,0 +1,12 @@
+<!doctype html><html lang="pl"><meta charset="utf-8"><title>Tony — integration test</title><body><h1>Przygotowuję test aplikacji…</h1><script type="module">
+try{
+ const html=await(await fetch('../index.html')).text(),doc=new DOMParser().parseFromString(html,'text/html');
+ document.body.innerHTML=doc.body.innerHTML;document.body.querySelectorAll('script').forEach(s=>s.remove());const base=document.createElement('base');base.href='../';document.head.append(base);
+ const link=document.createElement('link');link.rel='stylesheet';link.href='../style.css';document.head.append(link);
+ await import('../app.js');await import('../phrases.js');
+ document.getElementById('transcriptionMode').value='whisper';
+ const blob=await(await fetch('../audio/phrase1.mp3')).blob(),file=new File([blob],'mandarin.mp3',{type:'audio/mpeg'}),transfer=new DataTransfer();transfer.items.add(file);
+ const input=document.getElementById('phraseUpload');input.files=transfer.files;input.dispatchEvent(new Event('change'));
+ const started=Date.now();const timer=setInterval(()=>{const score=document.getElementById('phraseScore').textContent,status=document.getElementById('phraseStatus').textContent;if(score.includes('Whisper')){clearInterval(timer);const text=document.getElementById('recognized').textContent;if(!/\p{Script=Han}/u.test(text))throw Error('No Chinese text');const el=document.createElement('h1');el.textContent='INTEGRATION PASS: lokalne audio → Whisper → znaki i pinyin → historia';el.style.background='#dde5ce';el.style.padding='20px';document.body.prepend(el);}else if(Date.now()-started>240000||status.includes('Nie udało się uruchomić')){clearInterval(timer);const el=document.createElement('h1');el.textContent='INTEGRATION FAIL: '+status;document.body.prepend(el);}},1000);
+}catch(e){document.body.textContent='INTEGRATION FAIL: '+e.message;}
+</script></body></html>
