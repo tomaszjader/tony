@@ -2,7 +2,23 @@
 
 Aplikacja statyczna bez backendu, Pythona, kont użytkowników i własnych endpointów API. Analiza F0 (YIN), pinyin, frazy, nagrywanie, odtwarzanie i historia działają po stronie przeglądarki. Repozytorium Git ma gałąź `main`; pierwszy commit zachowuje wcześniejszą wersję z backendem.
 
-## Uruchomienie
+## Układ plików i formatowanie
+
+- `src/` — kod przeglądarkowy i arkusz stylów.
+- `tests/` — testy jednostkowe i strony testów przeglądarkowych.
+- `public/` — wzorce MP3, ikona i manifest PWA.
+- `scripts/` — szablon service workera i opcjonalne przygotowanie audio.
+- `index.html` oraz `vite.config.js` — wejście aplikacji i konfiguracja budowania.
+
+Pliki tekstowe mają kodowanie UTF-8. JavaScript używa modułów ES, a formatowanie
+JavaScript, HTML, CSS, JSON i Markdown kontroluje Prettier:
+
+```sh
+npm run format
+npm run format:check
+```
+
+## Uruchamianie aplikacji
 
 ```sh
 npm install
@@ -21,12 +37,12 @@ npm run preview
 
 ## Tryby transkrypcji
 
-| Tryb | Gdzie analizowane jest audio | Klucz | Ograniczenia |
-| --- | --- | --- | --- |
-| Lokalnie, bez transkrypcji | Przeglądarka | Nie | Nagranie, odsłuch, wykres i ręczne porównanie znaków |
-| Whisper lokalnie | Web Worker w przeglądarce, WASM | Nie | Pierwszy raz pobiera model `Xenova/whisper-tiny` z Hugging Face; może być wolny i mylić mandaryński |
-| Usługa przeglądarki | Dostawca rozpoznawania przeglądarki | Nie | Wyniki na żywo, tylko podczas nowego nagrania; nie działa we wszystkich przeglądarkach i może wysyłać audio do dostawcy |
-| OpenAI | Bezpośrednio `api.openai.com` | Własny | Wysyła nagranie; płatne API, internet i uprawnienia do wybranego modelu |
+| Tryb                       | Gdzie analizowane jest audio        | Klucz  | Ograniczenia                                                                                                            |
+| -------------------------- | ----------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Lokalnie, bez transkrypcji | Przeglądarka                        | Nie    | Nagranie, odsłuch, wykres i ręczne porównanie znaków                                                                    |
+| Whisper lokalnie           | Web Worker w przeglądarce, WASM     | Nie    | Pierwszy raz pobiera model `Xenova/whisper-tiny` z Hugging Face; może być wolny i mylić mandaryński                     |
+| Usługa przeglądarki        | Dostawca rozpoznawania przeglądarki | Nie    | Wyniki na żywo, tylko podczas nowego nagrania; nie działa we wszystkich przeglądarkach i może wysyłać audio do dostawcy |
+| OpenAI                     | Bezpośrednio `api.openai.com`       | Własny | Wysyła nagranie; płatne API, internet i uprawnienia do wybranego modelu                                                 |
 
 W ustawieniach można przygotować lokalny Whisper przed nagraniem. Pliki modelu i środowisko WASM są buforowane w przeglądarce; audio nie trafia do Hugging Face. Czyszczenie pamięci przeglądarki usuwa model i lokalne dane. Tryb lokalny działa na CPU przez WASM, bez wymagania WebGPU.
 

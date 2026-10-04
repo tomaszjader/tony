@@ -1,14 +1,287 @@
 <!doctype html>
-<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#344e3f"><link rel="manifest" href="./manifest.webmanifest"><title>Tony — poczuj chińskie tony</title><link rel="stylesheet" href="style.css"></head>
-<body><header><a class="brand" href="./">tony<span>声</span></a><span class="header-note">Małe ćwiczenia. Wielka różnica.</span><span class="pill">MANDARYŃSKI · PODSTAWY</span></header>
-<main><section class="intro"><div class="eyebrow">TWÓJ CODZIENNY TRENING WYMOWY</div><h1>Jedna sylaba.<br><em>Cztery możliwości.</em></h1><p>Posłuchaj, powiedz i zobacz swój głos.<br>Odkryj, jak ton zmienia znaczenie.</p></section>
-<div class="workspace"><section class="exercise card"><div class="section-top"><span class="eyebrow">01 / ĆWICZ SYLABĘ</span><span id="count">1 z 8</span></div><div id="tones" class="tones" aria-label="Wybierz ton"></div><div class="character" id="character">妈</div><h2 id="pinyin">mā</h2><p id="meaning" class="meaning">mama</p><div class="tone-description" id="description"></div><button id="reference" class="secondary">▷ &nbsp; Odtwórz wzór</button><label class="field-label" for="referenceSpeed">Tempo wzorca</label><select id="referenceSpeed" style="margin-bottom:14px"><option value="1">1×</option><option value="0.8">0,8×</option><option value="0.6">0,6×</option></select><button id="record" class="primary">● &nbsp; Nagraj wymowę</button><p class="small" id="recordNote">Powiedz sylabę raz. Nagranie potrwa do 3 sekund.</p><audio id="playback" controls hidden></audio><button id="downloadSyllable" class="secondary" hidden>Pobierz swoje nagranie</button><div class="navigation"><button id="previous" aria-label="Poprzednia sylaba">←</button><span>Zmień sylabę</span><button id="next" aria-label="Następna sylaba">→</button></div></section>
-<section class="analysis card"><div class="section-top"><span class="eyebrow">02 / ZOBACZ SWÓJ TON</span><span class="pill">KSZTAŁT GŁOSU</span></div><h3>Każdy ton ma swoją drogę.</h3><p class="muted">Porównaj przebieg swojej wymowy ze wzorcem.</p><div class="legend"><span><i class="reference-dot"></i>Wzorzec</span><span><i class="user-dot"></i>Twoja wymowa</span></div><div class="plot"><span class="axis-label">WYSOKOŚĆ GŁOSU</span><svg id="chart" viewBox="0 0 600 260" role="img" aria-label="Wykres wzorca tonu i nagrania"></svg><div class="plot-labels"><span>Początek sylaby</span><span>Koniec sylaby</span></div></div><div class="feedback" aria-live="polite"><span id="resultIcon">↗</span><div><h4 id="resultTitle">Najpierw posłuchaj. Potem spróbuj.</h4><p id="resultText">Nagraj swoją wymowę, aby zobaczyć przebieg głosu i otrzymać wskazówkę.</p></div></div><p class="disclaimer">Ocena jest orientacyjna. Analizujemy kształt tonu w pojedynczej sylabie, a nie poprawność całej wymowy.</p></section></div>
-<details class="card settings" id="settings" open><summary>Ustawienia mowy <span class="pill">BEZ BACKENDU</span></summary><p class="muted">Nagrywanie, pinyin, wykresy i historia działają w Twojej przeglądarce. Wybierz, jak rozpoznawać mowę i skąd brać wzorzec.</p><div class="settings-grid"><label>Transkrypcja<select id="transcriptionMode"><option value="manual">Lokalnie · bez automatycznej transkrypcji</option><option value="whisper">Whisper lokalnie · bez klucza</option><option value="browser" id="browserSpeechOption">Usługa przeglądarki · bez klucza, na żywo</option><option value="openai">OpenAI · własny klucz API</option></select></label><label>Wzorzec dla własnych fraz<select id="referenceSource"><option value="saved">Zapisany plik · lokalnie</option><option value="openai">OpenAI · generuj brakujący wzorzec</option><option value="system">Chiński głos systemowy, jeśli dostępny</option></select></label><label>Model transkrypcji OpenAI<select id="transcriptionModel"><option value="gpt-transcribe">gpt-transcribe</option><option value="gpt-4o-mini-transcribe">gpt-4o-mini-transcribe</option><option value="gpt-4o-transcribe">gpt-4o-transcribe</option><option value="whisper-1">whisper-1</option></select></label></div><button class="secondary" id="prepareWhisper">Pobierz model do lokalnej transkrypcji</button><p class="small">Whisper pobiera przy pierwszym użyciu kilkadziesiąt MB plików z Hugging Face i zapisuje je w pamięci podręcznej. Nagranie pozostaje w przeglądarce. Model tiny jest wolniejszy i może mylić chińskie słowa.</p><div class="key-row"><label>Twój klucz OpenAI <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Wklej klucz API tylko do tej karty"></label><button class="secondary" id="useKey">Użyj w tej karcie</button><button class="secondary" id="forgetKey">Usuń klucz</button></div><p id="keyStatus" class="small" role="status">Klucz nie jest zapisany. Po odświeżeniu trzeba wpisać go ponownie.</p><p class="disclaimer">OpenAI wysyła nagranie lub tekst bezpośrednio do api.openai.com i korzysta z płatnego API na Twoim koncie. Klucz jest dostępny w pamięci przeglądarki — używaj tej opcji wyłącznie w zaufanej, osobistej kopii aplikacji. Usługa rozpoznawania przeglądarki także może wymagać internetu i wysyłać audio do jej dostawcy.</p></details>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#344e3f" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>Tony — poczuj chińskie tony</title>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="./">tony<span>声</span></a
+      ><span class="header-note">Małe ćwiczenia. Wielka różnica.</span
+      ><span class="pill">MANDARYŃSKI · PODSTAWY</span>
+    </header>
+    <main>
+      <section class="intro">
+        <div class="eyebrow">TWÓJ CODZIENNY TRENING WYMOWY</div>
+        <h1>Jedna sylaba.<br /><em>Cztery możliwości.</em></h1>
+        <p>Posłuchaj, powiedz i zobacz swój głos.<br />Odkryj, jak ton zmienia znaczenie.</p>
+      </section>
+      <div class="workspace">
+        <section class="exercise card">
+          <div class="section-top">
+            <span class="eyebrow">01 / ĆWICZ SYLABĘ</span><span id="count">1 z 8</span>
+          </div>
+          <div id="tones" class="tones" aria-label="Wybierz ton"></div>
+          <div class="character" id="character">妈</div>
+          <h2 id="pinyin">mā</h2>
+          <p id="meaning" class="meaning">mama</p>
+          <div class="tone-description" id="description"></div>
+          <button id="reference" class="secondary">▷ &nbsp; Odtwórz wzór</button
+          ><label class="field-label" for="referenceSpeed">Tempo wzorca</label
+          ><select id="referenceSpeed" style="margin-bottom: 14px">
+            <option value="1">1×</option>
+            <option value="0.8">0,8×</option>
+            <option value="0.6">0,6×</option></select
+          ><button id="record" class="primary">● &nbsp; Nagraj wymowę</button>
+          <p class="small" id="recordNote">Powiedz sylabę raz. Nagranie potrwa do 3 sekund.</p>
+          <audio id="playback" controls hidden></audio
+          ><button id="downloadSyllable" class="secondary" hidden>Pobierz swoje nagranie</button>
+          <div class="navigation">
+            <button id="previous" aria-label="Poprzednia sylaba">←</button><span>Zmień sylabę</span
+            ><button id="next" aria-label="Następna sylaba">→</button>
+          </div>
+        </section>
+        <section class="analysis card">
+          <div class="section-top">
+            <span class="eyebrow">02 / ZOBACZ SWÓJ TON</span><span class="pill">KSZTAŁT GŁOSU</span>
+          </div>
+          <h3>Każdy ton ma swoją drogę.</h3>
+          <p class="muted">Porównaj przebieg swojej wymowy ze wzorcem.</p>
+          <div class="legend">
+            <span><i class="reference-dot"></i>Wzorzec</span
+            ><span><i class="user-dot"></i>Twoja wymowa</span>
+          </div>
+          <div class="plot">
+            <span class="axis-label">WYSOKOŚĆ GŁOSU</span
+            ><svg
+              id="chart"
+              viewBox="0 0 600 260"
+              role="img"
+              aria-label="Wykres wzorca tonu i nagrania"
+            ></svg>
+            <div class="plot-labels"><span>Początek sylaby</span><span>Koniec sylaby</span></div>
+          </div>
+          <div class="feedback" aria-live="polite">
+            <span id="resultIcon">↗</span>
+            <div>
+              <h4 id="resultTitle">Najpierw posłuchaj. Potem spróbuj.</h4>
+              <p id="resultText">
+                Nagraj swoją wymowę, aby zobaczyć przebieg głosu i otrzymać wskazówkę.
+              </p>
+            </div>
+          </div>
+          <p class="disclaimer">
+            Ocena jest orientacyjna. Analizujemy kształt tonu w pojedynczej sylabie, a nie
+            poprawność całej wymowy.
+          </p>
+        </section>
+      </div>
+      <details class="card settings" id="settings" open>
+        <summary>Ustawienia mowy <span class="pill">BEZ BACKENDU</span></summary>
+        <p class="muted">
+          Nagrywanie, pinyin, wykresy i historia działają w Twojej przeglądarce. Wybierz, jak
+          rozpoznawać mowę i skąd brać wzorzec.
+        </p>
+        <div class="settings-grid">
+          <label
+            >Transkrypcja<select id="transcriptionMode">
+              <option value="manual">Lokalnie · bez automatycznej transkrypcji</option>
+              <option value="whisper">Whisper lokalnie · bez klucza</option>
+              <option value="browser" id="browserSpeechOption">
+                Usługa przeglądarki · bez klucza, na żywo
+              </option>
+              <option value="openai">OpenAI · własny klucz API</option>
+            </select></label
+          ><label
+            >Wzorzec dla własnych fraz<select id="referenceSource">
+              <option value="saved">Zapisany plik · lokalnie</option>
+              <option value="openai">OpenAI · generuj brakujący wzorzec</option>
+              <option value="system">Chiński głos systemowy, jeśli dostępny</option>
+            </select></label
+          ><label
+            >Model transkrypcji OpenAI<select id="transcriptionModel">
+              <option value="gpt-transcribe">gpt-transcribe</option>
+              <option value="gpt-4o-mini-transcribe">gpt-4o-mini-transcribe</option>
+              <option value="gpt-4o-transcribe">gpt-4o-transcribe</option>
+              <option value="whisper-1">whisper-1</option>
+            </select></label
+          >
+        </div>
+        <button class="secondary" id="prepareWhisper">
+          Pobierz model do lokalnej transkrypcji
+        </button>
+        <p class="small">
+          Whisper pobiera przy pierwszym użyciu kilkadziesiąt MB plików z Hugging Face i zapisuje je
+          w pamięci podręcznej. Nagranie pozostaje w przeglądarce. Model tiny jest wolniejszy i może
+          mylić chińskie słowa.
+        </p>
+        <div class="key-row">
+          <label
+            >Twój klucz OpenAI
+            <input
+              id="apiKey"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Wklej klucz API tylko do tej karty" /></label
+          ><button class="secondary" id="useKey">Użyj w tej karcie</button
+          ><button class="secondary" id="forgetKey">Usuń klucz</button>
+        </div>
+        <p id="keyStatus" class="small" role="status">
+          Klucz nie jest zapisany. Po odświeżeniu trzeba wpisać go ponownie.
+        </p>
+        <p class="disclaimer">
+          OpenAI wysyła nagranie lub tekst bezpośrednio do api.openai.com i korzysta z płatnego API
+          na Twoim koncie. Klucz jest dostępny w pamięci przeglądarki — używaj tej opcji wyłącznie w
+          zaufanej, osobistej kopii aplikacji. Usługa rozpoznawania przeglądarki także może wymagać
+          internetu i wysyłać audio do jej dostawcy.
+        </p>
+      </details>
 
-<section class="phrases card" id="phrases"><div class="section-top"><span class="eyebrow">03 / TWOJE FRAZY</span><span class="pill">CAŁA WYPOWIEDŹ</span></div><h3>Powiedz coś swojego.</h3><p class="muted">Dodaj chińską frazę. Posłuchaj jej wolniej, a potem nagraj całą wypowiedź.</p>
-<form id="phraseForm" class="phrase-form"><label>Fraza po chińsku<textarea id="newPhrase" maxlength="120" required placeholder="Np. 我想喝一杯茶。"></textarea></label><label>Polskie znaczenie (opcjonalnie)<input id="newMeaning" maxlength="200" placeholder="Chcę wypić filiżankę herbaty."></label><button class="primary" id="addPhrase">＋ Dodaj frazę</button></form>
-<div class="phrase-columns"><div><label class="field-label" for="phraseList">Twoje zapisane frazy</label><div class="phrase-picker"><select id="phraseList"></select><button class="secondary" id="deletePhrase" aria-label="Usuń wybraną frazę">Usuń</button></div><div id="phraseText" class="phrase-hanzi"></div><div id="phrasePinyin" class="phrase-pinyin"></div><p id="phraseMeaning" class="muted"></p><div class="phrase-controls"><button class="secondary" id="phraseReference">▷ Odtwórz frazę</button><button class="secondary" id="phraseStopReference">■ Zatrzymaj wzór</button></div><label class="field-label" for="phraseSpeed">Tempo wzorca</label><select id="phraseSpeed"><option value="1">Normalne · 1×</option><option value="0.8">Wolniejsze · 0,8×</option><option value="0.6">Bardzo wolne · 0,6×</option></select><label class="upload-label">Dodaj lokalny wzorzec audio (do 30 s)<input id="referenceUpload" type="file" accept="audio/*"></label><p class="small">Gotowe wzorce są syntetyczne. Własny plik zostaje lokalnie; wzorzec OpenAI wysyła tylko tekst frazy i zapisuje wynik w przeglądarce.</p><button class="primary" id="phraseRecord">● Nagraj całą frazę</button><label class="upload-label">Lub wybierz własne nagranie (do 20 s, maks. 8 MB)<input id="phraseUpload" type="file" accept="audio/*"></label><audio id="phrasePlayback" controls hidden></audio><div class="recording-actions"><button class="secondary" id="downloadRecording" disabled>Pobierz WAV</button><button class="secondary" id="retryTranscription" disabled>Rozpoznaj ponownie</button></div></div>
-<div class="phrase-result"><span class="eyebrow">TWOJA WYPOWIEDŹ</span><h4 id="recognized">Tutaj pojawi się rozpoznana wypowiedź.</h4><p id="recognizedPinyin" class="phrase-pinyin"></p><p id="phraseScore">Nagraj całą frazę, potem porównaj wynik.</p><div class="comparison-labels"><span>Wzorzec ↑</span><span>Rozpoznane ↓</span></div><div id="phraseComparison"></div><svg id="phraseChart" viewBox="0 0 600 200" role="img" aria-label="Melodia całej frazy" style="margin-top:25px"></svg><p id="melodyNote" class="disclaimer">Po nagraniu zobaczysz przebieg głosu całej frazy.</p><p class="disclaimer">Porównanie dotyczy sylab odczytanych z rozpoznanego tekstu. Pinyin opisuje rozpoznane słowa, a nie zmierzone tony Twojego głosu. Rozpoznawanie może się mylić; zgodność tekstu nie potwierdza poprawności wymowy i tonów.</p><div class="manual-entry"><label for="manualTranscript">Transkrypcja do ręcznego porównania (opcjonalnie)</label><textarea id="manualTranscript" maxlength="300" placeholder="Wpisz usłyszane chińskie znaki"></textarea><button class="secondary" id="manualApply">Porównaj wpisany tekst</button></div></div></div><p id="phraseStatus" class="phrase-status" role="status" aria-live="polite">Wybierz frazę i posłuchaj wzoru.</p><p class="small">Frazy, wzorce i historia nagrań są zapisane w tej przeglądarce. Pobierz ważne nagrania, aby mieć własną kopię.</p><div class="history"><h4>Twoje lokalne nagrania</h4><div id="recordingHistory"></div></div></section>
+      <section class="phrases card" id="phrases">
+        <div class="section-top">
+          <span class="eyebrow">03 / TWOJE FRAZY</span><span class="pill">CAŁA WYPOWIEDŹ</span>
+        </div>
+        <h3>Powiedz coś swojego.</h3>
+        <p class="muted">
+          Dodaj chińską frazę. Posłuchaj jej wolniej, a potem nagraj całą wypowiedź.
+        </p>
+        <form id="phraseForm" class="phrase-form">
+          <label
+            >Fraza po chińsku<textarea
+              id="newPhrase"
+              maxlength="120"
+              required
+              placeholder="Np. 我想喝一杯茶。"
+            ></textarea></label
+          ><label
+            >Polskie znaczenie (opcjonalnie)<input
+              id="newMeaning"
+              maxlength="200"
+              placeholder="Chcę wypić filiżankę herbaty." /></label
+          ><button class="primary" id="addPhrase">＋ Dodaj frazę</button>
+        </form>
+        <div class="phrase-columns">
+          <div>
+            <label class="field-label" for="phraseList">Twoje zapisane frazy</label>
+            <div class="phrase-picker">
+              <select id="phraseList"></select
+              ><button class="secondary" id="deletePhrase" aria-label="Usuń wybraną frazę">
+                Usuń
+              </button>
+            </div>
+            <div id="phraseText" class="phrase-hanzi"></div>
+            <div id="phrasePinyin" class="phrase-pinyin"></div>
+            <p id="phraseMeaning" class="muted"></p>
+            <div class="phrase-controls">
+              <button class="secondary" id="phraseReference">▷ Odtwórz frazę</button
+              ><button class="secondary" id="phraseStopReference">■ Zatrzymaj wzór</button>
+            </div>
+            <label class="field-label" for="phraseSpeed">Tempo wzorca</label
+            ><select id="phraseSpeed">
+              <option value="1">Normalne · 1×</option>
+              <option value="0.8">Wolniejsze · 0,8×</option>
+              <option value="0.6">Bardzo wolne · 0,6×</option></select
+            ><label class="upload-label"
+              >Dodaj lokalny wzorzec audio (do 30 s)<input
+                id="referenceUpload"
+                type="file"
+                accept="audio/*"
+            /></label>
+            <p class="small">
+              Gotowe wzorce są syntetyczne. Własny plik zostaje lokalnie; wzorzec OpenAI wysyła
+              tylko tekst frazy i zapisuje wynik w przeglądarce.
+            </p>
+            <button class="primary" id="phraseRecord">● Nagraj całą frazę</button
+            ><label class="upload-label"
+              >Lub wybierz własne nagranie (do 20 s, maks. 8 MB)<input
+                id="phraseUpload"
+                type="file"
+                accept="audio/*" /></label
+            ><audio id="phrasePlayback" controls hidden></audio>
+            <div class="recording-actions">
+              <button class="secondary" id="downloadRecording" disabled>Pobierz WAV</button
+              ><button class="secondary" id="retryTranscription" disabled>
+                Rozpoznaj ponownie
+              </button>
+            </div>
+          </div>
+          <div class="phrase-result">
+            <span class="eyebrow">TWOJA WYPOWIEDŹ</span>
+            <h4 id="recognized">Tutaj pojawi się rozpoznana wypowiedź.</h4>
+            <p id="recognizedPinyin" class="phrase-pinyin"></p>
+            <p id="phraseScore">Nagraj całą frazę, potem porównaj wynik.</p>
+            <div class="comparison-labels"><span>Wzorzec ↑</span><span>Rozpoznane ↓</span></div>
+            <div id="phraseComparison"></div>
+            <svg
+              id="phraseChart"
+              viewBox="0 0 600 200"
+              role="img"
+              aria-label="Melodia całej frazy"
+              style="margin-top: 25px"
+            ></svg>
+            <p id="melodyNote" class="disclaimer">
+              Po nagraniu zobaczysz przebieg głosu całej frazy.
+            </p>
+            <p class="disclaimer">
+              Porównanie dotyczy sylab odczytanych z rozpoznanego tekstu. Pinyin opisuje rozpoznane
+              słowa, a nie zmierzone tony Twojego głosu. Rozpoznawanie może się mylić; zgodność
+              tekstu nie potwierdza poprawności wymowy i tonów.
+            </p>
+            <div class="manual-entry">
+              <label for="manualTranscript">Transkrypcja do ręcznego porównania (opcjonalnie)</label
+              ><textarea
+                id="manualTranscript"
+                maxlength="300"
+                placeholder="Wpisz usłyszane chińskie znaki"
+              ></textarea
+              ><button class="secondary" id="manualApply">Porównaj wpisany tekst</button>
+            </div>
+          </div>
+        </div>
+        <p id="phraseStatus" class="phrase-status" role="status" aria-live="polite">
+          Wybierz frazę i posłuchaj wzoru.
+        </p>
+        <p class="small">
+          Frazy, wzorce i historia nagrań są zapisane w tej przeglądarce. Pobierz ważne nagrania,
+          aby mieć własną kopię.
+        </p>
+        <div class="history">
+          <h4>Twoje lokalne nagrania</h4>
+          <div id="recordingHistory"></div>
+        </div>
+      </section>
 
-<section class="guide"><div><span class="eyebrow">CZTERY TONY, CZTERY RUCHY</span><h3>Znajdź swój rytm.</h3></div><div class="guide-item"><b>01 ─</b><strong>Równy</strong><span>Utrzymaj głos wysoko.</span></div><div class="guide-item"><b>02 ↗</b><strong>Wznoszący</strong><span>Jak przy zadawaniu pytania.</span></div><div class="guide-item"><b>03 ⌄</b><strong>Opada i wznosi się</strong><span>Zejdź nisko, potem w górę.</span></div><div class="guide-item"><b>04 ↘</b><strong>Opadający</strong><span>Krótki, zdecydowany spadek.</span></div></section><footer>Ćwicz spokojnie. Jeden ton na raz.<span>Tryb lokalny: nagrania zostają na Twoim komputerze.</span></footer></main><script type="module" src="app.js"></script><script type="module" src="phrases.js"></script><script type="module" src="pwa.js"></script></body></html>
+      <section class="guide">
+        <div>
+          <span class="eyebrow">CZTERY TONY, CZTERY RUCHY</span>
+          <h3>Znajdź swój rytm.</h3>
+        </div>
+        <div class="guide-item">
+          <b>01 ─</b><strong>Równy</strong><span>Utrzymaj głos wysoko.</span>
+        </div>
+        <div class="guide-item">
+          <b>02 ↗</b><strong>Wznoszący</strong><span>Jak przy zadawaniu pytania.</span>
+        </div>
+        <div class="guide-item">
+          <b>03 ⌄</b><strong>Opada i wznosi się</strong><span>Zejdź nisko, potem w górę.</span>
+        </div>
+        <div class="guide-item">
+          <b>04 ↘</b><strong>Opadający</strong><span>Krótki, zdecydowany spadek.</span>
+        </div>
+      </section>
+      <footer>
+        Ćwicz spokojnie. Jeden ton na raz.<span
+          >Tryb lokalny: nagrania zostają na Twoim komputerze.</span
+        >
+      </footer>
+    </main>
+    <script type="module" src="src/app.js"></script>
+    <script type="module" src="src/phrases.js"></script>
+    <script type="module" src="src/pwa.js"></script>
+  </body>
+</html>

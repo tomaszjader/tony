@@ -1,1 +1,11 @@
-{"name":"Tony — chińskie tony","short_name":"Tony","start_url":"./","scope":"./","display":"standalone","background_color":"#f5f5ef","theme_color":"#344e3f","lang":"pl","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
+{
+  "name": "Tony — chińskie tony",
+  "short_name": "Tony",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f5ef",
+  "theme_color": "#344e3f",
+  "lang": "pl",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
