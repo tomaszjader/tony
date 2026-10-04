@@ -2,7 +2,17 @@
 
 Aplikacja statyczna bez backendu, Pythona, kont użytkowników i własnych endpointów API. Analiza F0 (YIN), pinyin, frazy, nagrywanie, odtwarzanie i historia działają po stronie przeglądarki. Repozytorium Git ma gałąź `main`; pierwszy commit zachowuje wcześniejszą wersję z backendem.
 
-## Układ plików i formatowanie
+## GitHub Pages
+
+Adres aplikacji: https://tomaszjader.github.io/tony/
+
+Workflow `.github/workflows/pages.yml` sprawdza formatowanie, uruchamia testy,
+buduje aplikację i publikuje `dist/` po każdym pushu do `main`.
+W ustawieniach repozytorium **Settings → Pages → Source** wybierz **GitHub Actions**.
+Można też uruchomić publikację ręcznie przez **Actions → Deploy GitHub Pages → Run workflow**.
+Ścieżki względne w Vite obsługują podkatalog `/tony/`; mikrofon działa przez HTTPS.
+
+## Organizacja projektu
 
 - `src/` — kod przeglądarkowy i arkusz stylów.
 - `tests/` — testy jednostkowe i strony testów przeglądarkowych.
