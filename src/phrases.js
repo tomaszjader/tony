@@ -1,6 +1,6 @@
 import { pinyin } from 'pinyin-pro';
 import { compare } from './phrase-compare.js';
-import { contour } from './phrase-contour.js';
+import { analyzeContour } from './pitch-analysis.js';
 import { decodeAudio, encodeWav, download } from './audio-utils.js';
 import { getApiKey, initializeSettings } from './settings.js';
 import { transcribeAudio, generateReference } from './openai-audio.js';
@@ -133,14 +133,28 @@ async function referenceBlob(phrase) {
   }
   return null;
 }
-async function melody(audio, phrase) {
-  const user = contour(audio.samples, audio.rate),
+const analyses = new WeakMap();
+function analyzedAudio(blob, decoded) {
+  if (!analyses.has(blob)) {
+    const job = (async () => {
+      const audio = decoded || (await decodeAudio(blob));
+      const points = await analyzeContour(audio.samples, audio.rate);
+      return { audio, points };
+    })().catch((error) => {
+      analyses.delete(blob);
+      throw error;
+    });
+    analyses.set(blob, job);
+  }
+  return analyses.get(blob);
+}
+async function melody(blob, phrase, decoded) {
+  const { points: user } = await analyzedAudio(blob, decoded),
     reference = await referenceBlob(phrase);
   let pattern = [];
   if (reference) {
     try {
-      const b = await decodeAudio(reference);
-      pattern = contour(b.samples, b.rate);
+      pattern = (await analyzedAudio(reference)).points;
     } catch {}
   }
   chart(user, pattern);
@@ -250,7 +264,7 @@ async function history() {
         setPlayback(attempt.blob);
         showTranscript(attempt.transcript || '', attempt.source || 'zapisana próba');
         try {
-          await melody(await decodeAudio(attempt.blob), selected);
+          await melody(attempt.blob, selected);
         } catch {}
         status('Otworzono lokalne nagranie. Możesz odsłuchać lub ponownie rozpoznać.');
       };
@@ -302,8 +316,8 @@ async function recognizeAttempt(attempt, liveText = '') {
     return;
   }
   if (mode === 'whisper') {
-    const audio = await decodeAudio(attempt.blob);
-    if (!contour(audio.samples, audio.rate).length) {
+    const { audio, points } = await analyzedAudio(attempt.blob);
+    if (!points.length) {
       status('Nie wykryto stabilnego głosu. Nagranie jest zapisane; sprawdź odsłuch.');
       return;
     }
@@ -349,7 +363,7 @@ async function evaluate(blob, liveText = '') {
     await saveAttempt(attempt)
       .then(() => (saved = true))
       .catch(() => {});
-    await melody(audio, selected);
+    await melody(wav, selected, audio);
     await recognizeAttempt(attempt, liveText);
     if (saved) await saveAttempt(attempt);
     else

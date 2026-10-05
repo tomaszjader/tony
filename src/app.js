@@ -1,4 +1,5 @@
-import { target, analyze } from './pitch.js';
+import { target } from './pitch.js';
+import { analyzeSyllable } from './pitch-analysis.js';
 import { saveAttempt } from './storage.js';
 import { download } from './audio-utils.js';
 let currentRecording = null;
@@ -201,7 +202,7 @@ $('record').onclick = async () => {
           const channel = buffer.getChannelData(c);
           for (let i = 0; i < mono.length; i++) mono[i] += channel[i] / buffer.numberOfChannels;
         }
-        const result = analyze(mono, buffer.sampleRate, chosenTone);
+        const result = await analyzeSyllable(mono, buffer.sampleRate, chosenTone);
         draw(result.points);
         if (result.uncertain) {
           feedback(
