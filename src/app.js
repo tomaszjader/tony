@@ -76,6 +76,8 @@ function draw(points = []) {
 function render() {
   currentRecording = null;
   $('downloadSyllable').hidden = true;
+  $('syllableSaveStatus').hidden = true;
+  $('syllableSaveStatus').textContent = '';
   referenceAudio.pause();
   referenceAudio.currentTime = 0;
   const [char, pinyin, meaning, tone] = exercises[index];
@@ -179,19 +181,27 @@ $('record').onclick = async () => {
         const blob = new Blob(chunks, { type: recorder.mimeType });
         currentRecording = blob;
         $('downloadSyllable').hidden = false;
-        await saveAttempt({
-          id: crypto.randomUUID(),
-          date: Date.now(),
-          phrase: {
-            id: 'syllable-' + index,
-            text: exercises[index][0],
-            meaning: exercises[index][2],
-          },
-          blob,
-          transcript: '',
-          source: 'nagranie sylaby',
-        }).catch(() => {});
-        window.dispatchEvent(new Event('tony-attempt-saved'));
+        try {
+          await saveAttempt({
+            id: crypto.randomUUID(),
+            date: Date.now(),
+            phrase: {
+              id: 'syllable-' + index,
+              text: exercises[index][0],
+              meaning: exercises[index][2],
+            },
+            blob,
+            transcript: '',
+            source: 'nagranie sylaby',
+          });
+          $('syllableSaveStatus').hidden = true;
+          $('syllableSaveStatus').textContent = '';
+          window.dispatchEvent(new Event('tony-attempt-saved'));
+        } catch {
+          $('syllableSaveStatus').textContent =
+            'Nie zapisano nagrania w historii. Pobierz swoje nagranie przed odświeżeniem strony lub zmianą sylaby.';
+          $('syllableSaveStatus').hidden = false;
+        }
         if (url) URL.revokeObjectURL(url);
         url = URL.createObjectURL(blob);
         $('playback').src = url;

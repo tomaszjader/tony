@@ -63,6 +63,19 @@ const toPinyin = (text) => ({
 function status(text) {
   $('phraseStatus').textContent = text;
 }
+async function persistAttempt(attempt) {
+  try {
+    await saveAttempt(attempt);
+    $('phraseSaveStatus').textContent = '';
+    $('phraseSaveStatus').hidden = true;
+    return true;
+  } catch {
+    $('phraseSaveStatus').textContent =
+      'Nie zapisano nagrania lub zmian w historii. Pobierz WAV przed odświeżeniem strony lub zmianą frazy. Bieżąca transkrypcja może nie być zachowana.';
+    $('phraseSaveStatus').hidden = false;
+    return false;
+  }
+}
 function savePhrases() {
   try {
     localStorage.setItem('tony-phrases', JSON.stringify(phrases));
@@ -165,6 +178,8 @@ async function melody(blob, phrase, decoded) {
       : 'Pomarańczowy wykres pokazuje Twój głos. Dodaj lokalny wzorzec lub wygeneruj go przez OpenAI, aby porównać melodię.';
 }
 function resetResult() {
+  $('phraseSaveStatus').textContent = '';
+  $('phraseSaveStatus').hidden = true;
   if (recordURL) {
     URL.revokeObjectURL(recordURL);
     recordURL = null;
@@ -318,7 +333,7 @@ async function recognizeAttempt(attempt, liveText = '') {
   if (mode === 'whisper') {
     const { audio, points } = await analyzedAudio(attempt.blob);
     if (!points.length) {
-      status('Nie wykryto stabilnego głosu. Nagranie jest zapisane; sprawdź odsłuch.');
+      status('Nie wykryto stabilnego głosu. Sprawdź odsłuch nagrania.');
       return;
     }
     status('Uruchamiam lokalny Whisper. Pierwsze użycie wymaga pobrania modelu…');
@@ -344,7 +359,6 @@ async function evaluate(blob, liveText = '') {
   lock(true);
   $('phraseRecord').disabled = true;
   resetResult();
-  let saved = false;
   try {
     status('Analizuję nagranie lokalnie…');
     const audio = await decodeAudio(blob);
@@ -360,17 +374,10 @@ async function evaluate(blob, liveText = '') {
     };
     lastAttempt = attempt;
     setPlayback(wav);
-    await saveAttempt(attempt)
-      .then(() => (saved = true))
-      .catch(() => {});
+    await persistAttempt(attempt);
     await melody(wav, selected, audio);
     await recognizeAttempt(attempt, liveText);
-    if (saved) await saveAttempt(attempt);
-    else
-      status(
-        $('phraseStatus').textContent +
-          ' Nie udało się zapisać historii; pobierz nagranie przyciskiem poniżej.',
-      );
+    await persistAttempt(attempt);
   } catch (e) {
     status(e.message);
   } finally {
@@ -591,7 +598,7 @@ $('retryTranscription').onclick = async () => {
   $('phraseRecord').disabled = true;
   try {
     await recognizeAttempt(lastAttempt);
-    await saveAttempt(lastAttempt).catch(() => {});
+    await persistAttempt(lastAttempt);
   } catch (e) {
     status(e.message);
   } finally {
@@ -611,7 +618,7 @@ $('manualApply').onclick = async () => {
   if (lastAttempt) {
     lastAttempt.transcript = text;
     lastAttempt.source = 'tekst wpisany ręcznie';
-    await saveAttempt(lastAttempt).catch(() => {});
+    await persistAttempt(lastAttempt);
   }
   status('Porównanie wpisanego tekstu gotowe. Ten tryb nie rozpoznaje nagrania automatycznie.');
 };
