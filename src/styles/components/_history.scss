@@ -1,0 +1,48 @@
+@use '../abstracts/tokens' as t;
+
+.history {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid t.$color-card-border;
+}
+
+.history h4 {
+  margin-bottom: 18px;
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e6e9dd;
+  font-size: 12px;
+}
+
+.history-row span {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.history-row button {
+  padding: 8px 12px;
+  border: 1px solid t.$color-border;
+  border-radius: 8px;
+  background: t.$color-surface;
+  color: #435a40;
+  font: inherit;
+}
+
+.history > div {
+  color: #7b8971;
+  font-size: 12px;
+}
+
+@media (max-width: t.$breakpoint-mobile) {
+  .history-row {
+    flex-wrap: wrap;
+  }
+  .history-row span {
+    flex-basis: 100%;
+  }
+}

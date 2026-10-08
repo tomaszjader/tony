@@ -23,7 +23,7 @@ export default defineConfig({
         const hash = createHash('sha256');
         for (const name of files) hash.update(await readFile(resolve(root, name)));
         const cache = 'tony-' + hash.digest('hex').slice(0, 12);
-        const template = await readFile(resolve('scripts/service-worker.js'), 'utf8');
+        const template = await readFile(resolve('src/pwa/service-worker.js'), 'utf8');
         await writeFile(
           resolve(root, 'sw.js'),
           template

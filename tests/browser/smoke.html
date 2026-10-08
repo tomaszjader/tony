@@ -5,20 +5,20 @@
   <pre id="result">Rozpoczynam…</pre>
   <p id="progress"></p>
   <script type="module">
-    import { decodeAudio } from '../src/audio-utils.js';
-    import { contour } from '../src/phrase-contour.js';
-    import { localWhisper, resample16k } from '../src/local-whisper.js';
+    import { decodeAudio } from '../../src/shared/audio/audio-utils.js';
+    import { contour } from '../../src/shared/audio/phrase-contour.js';
+    import { localWhisper, resample16k } from '../../src/shared/transcription/local-whisper.js';
     import {
       saveAttempt,
       loadAttempts,
       deleteAttempt,
       saveReference,
       loadReference,
-    } from '../src/storage.js';
+    } from '../../src/shared/storage.js';
     const el = document.getElementById('result'),
       log = (text) => (el.textContent += '\n' + text);
     try {
-      const blob = await (await fetch('../audio/phrase1.mp3')).blob(),
+      const blob = await (await fetch('../../audio/phrase1.mp3')).blob(),
         audio = await decodeAudio(blob);
       if (!contour(audio.samples, audio.rate).length) throw Error('No F0 contour');
       log('PASS: dekodowanie MP3 i wykres F0');

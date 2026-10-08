@@ -1,18 +1,21 @@
 import { pinyin } from 'pinyin-pro';
 import { compare } from './phrase-compare.js';
-import { analyzeContour } from './pitch-analysis.js';
-import { decodeAudio, encodeWav, download } from './audio-utils.js';
-import { getApiKey, initializeSettings } from './settings.js';
-import { transcribeAudio, generateReference } from './openai-audio.js';
+import { analyzeContour } from '../../shared/audio/pitch-analysis.js';
+import { decodeAudio, encodeWav, download } from '../../shared/audio/audio-utils.js';
+import { getApiKey, initializeSettings } from '../settings/settings.js';
+import { transcribeAudio, generateReference } from '../../shared/transcription/openai-audio.js';
 import {
   saveReference,
   loadReference,
   saveAttempt,
   loadAttempts,
   deleteAttempt,
-} from './storage.js';
-import { startRecognition, SpeechRecognitionClass } from './browser-speech.js';
-import { localWhisper, resample16k } from './local-whisper.js';
+} from '../../shared/storage.js';
+import {
+  startRecognition,
+  SpeechRecognitionClass,
+} from '../../shared/transcription/browser-speech.js';
+import { localWhisper, resample16k } from '../../shared/transcription/local-whisper.js';
 const $ = (id) => document.getElementById(id),
   ref = new Audio();
 const presets = [

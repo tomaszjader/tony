@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compare } from '../src/phrase-compare.js';
+import { compare } from '../../src/features/phrases/phrase-compare.js';
 test('identical pinyin matches', () =>
   assert.equal(compare(['nǐ', 'hǎo'], ['nǐ', 'hǎo']).match, 100));
 test('an omitted syllable does not misalign the rest', () => {

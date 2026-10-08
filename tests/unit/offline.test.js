@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-const source = readFileSync('scripts/service-worker.js', 'utf8')
+const source = readFileSync(new URL('../../src/pwa/service-worker.js', import.meta.url), 'utf8')
   .replace("'__TONY_CACHE__'", '"tony-test"')
   .replace('__TONY_FILES__', '[]');
 function harness(fetcher, matcher) {

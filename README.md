@@ -14,14 +14,46 @@ Można też uruchomić publikację ręcznie przez **Actions → Deploy GitHub Pa
 
 ## Organizacja projektu
 
-- `src/` — kod przeglądarkowy i arkusz stylów.
-- `tests/` — testy jednostkowe i strony testów przeglądarkowych.
-- `public/` — wzorce MP3, ikona i manifest PWA.
-- `scripts/` — szablon service workera i opcjonalne przygotowanie audio.
-- `index.html` oraz `vite.config.js` — wejście aplikacji i konfiguracja budowania.
+```text
+src/
+  main.js                 # jedno wejście: style, ćwiczenia i PWA
+  features/
+    syllables/            # ćwiczenia pojedynczych sylab
+    phrases/              # ćwiczenia fraz i porównywanie pinyin
+    settings/             # ustawienia i klucz API w pamięci karty
+  shared/
+    audio/                # dekodowanie, WAV, F0 i worker analizy głosu
+    transcription/        # usługa przeglądarki, lokalny Whisper i OpenAI
+    storage.js            # wspólny zapis audio w IndexedDB
+  pwa/                    # rejestracja i szablon service workera
+  styles/
+    main.scss             # punkt wejścia stylów
+    abstracts/            # kolory, fonty i breakpoint
+    base/                 # style globalne i typografia
+    layout/               # układ strony i responsywność
+    components/           # kontrolki, sylaby, analiza, frazy i historia
+tests/
+  unit/                   # testy uruchamiane przez npm test
+  browser/                # smoke.html i integration.html
+public/                   # wzorce MP3, ikona i manifest PWA
+scripts/                  # opcjonalne przygotowanie audio
+```
+
+`index.html` ładuje `src/main.js`, a `vite.config.js` konfiguruje budowanie.
+Moduły w `features/` korzystają ze wspólnych narzędzi w `shared/`. Workery są
+przechowywane obok modułów, które je uruchamiają.
+
+## Style SCSS
+
+`src/main.js` importuje `src/styles/main.scss`. Moduły SCSS są łączone przez
+`@use`, a wspólne zmienne znajdują się w `src/styles/abstracts/_tokens.scss`.
+Style poszczególnych części aplikacji dodawaj w odpowiednich plikach
+`styles/components/`; układ strony znajduje się w `styles/layout/`.
+Zależność developerska `sass` obsługuje kompilację podczas `npm start` i
+`npm run build`. Wynikowy CSS trafia do `dist/assets/`.
 
 Pliki tekstowe mają kodowanie UTF-8. JavaScript używa modułów ES, a formatowanie
-JavaScript, HTML, CSS, JSON i Markdown kontroluje Prettier:
+JavaScript, HTML, SCSS, JSON i Markdown kontroluje Prettier:
 
 ```sh
 npm run format

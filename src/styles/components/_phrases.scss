@@ -1,0 +1,160 @@
+@use '../abstracts/tokens' as t;
+
+.manual-entry {
+  margin-top: 25px;
+}
+
+.manual-entry textarea {
+  min-height: 65px;
+  resize: vertical;
+}
+
+.recording-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.recording-actions button {
+  font-size: 11px;
+  padding: 10px;
+}
+
+.phrases {
+  margin-top: 28px;
+}
+
+.phrase-form {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr auto;
+  gap: 15px;
+  align-items: end;
+  margin: 25px 0;
+  padding-bottom: 25px;
+  border-bottom: 1px solid t.$color-card-border;
+}
+
+.phrase-form textarea {
+  height: 70px;
+  resize: vertical;
+}
+
+.phrase-form .primary {
+  width: auto;
+  white-space: nowrap;
+  margin-bottom: 0;
+}
+
+.phrase-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 35px;
+}
+
+.phrase-picker,
+.phrase-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.phrase-picker select {
+  flex: 1;
+  min-width: 0;
+}
+
+.phrase-picker button {
+  width: auto;
+  margin: 8px 0 0;
+  padding: 12px;
+}
+
+.phrase-hanzi {
+  font-size: 30px;
+  line-height: 1.6;
+  margin: 24px 0 10px;
+  overflow-wrap: anywhere;
+}
+
+.phrase-pinyin {
+  font-size: 18px;
+  line-height: 1.6;
+  color: t.$color-accent;
+  overflow-wrap: anywhere;
+}
+
+.phrase-controls {
+  margin-top: 24px;
+}
+
+.phrase-result {
+  background: #f4f6ed;
+  padding: 26px;
+  border-radius: 15px;
+}
+
+.phrase-result h4 {
+  font-size: 26px;
+  line-height: 1.6;
+  margin-top: 25px;
+  overflow-wrap: anywhere;
+}
+
+#phraseScore {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.comparison-labels {
+  display: flex;
+  gap: 20px;
+  font-size: 10px;
+  color: t.$color-muted;
+  margin: 20px 0 12px;
+}
+
+#phraseComparison {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.syllable {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.matched {
+  background: #e0ead5;
+  color: #456039;
+}
+
+.different {
+  background: #fae6db;
+  color: #a85f41;
+}
+
+.phrase-status {
+  padding: 16px 20px;
+  background: #eff3e7;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: t.$breakpoint-mobile) {
+  .phrase-form,
+  .phrase-columns {
+    grid-template-columns: 1fr;
+  }
+  .phrase-result {
+    padding: 20px;
+  }
+  .phrase-form .primary {
+    width: 100%;
+  }
+}

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { detectPitch, analyze, target } from '../src/pitch.js';
+import { detectPitch, analyze, target } from '../../src/shared/audio/pitch.js';
 const rate = 16000;
 function signal(tone, base = 180) {
   let phase = 0;

@@ -32,7 +32,7 @@ test('IndexedDB can be opened again after a temporary failure', async () => {
     },
   };
   try {
-    const { loadAttempts } = await import('../src/storage.js');
+    const { loadAttempts } = await import('../../src/shared/storage.js');
     await assert.rejects(loadAttempts(), /temporary storage error/);
     assert.deepEqual(await loadAttempts(), []);
     assert.equal(opens, 2);

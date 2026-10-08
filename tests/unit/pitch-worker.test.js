@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Worker as NodeWorker } from 'node:worker_threads';
-import { analyze } from '../src/pitch.js';
-import { contour } from '../src/phrase-contour.js';
-import { analyzeSyllable, analyzeContour } from '../src/pitch-analysis.js';
+import { analyze } from '../../src/shared/audio/pitch.js';
+import { contour } from '../../src/shared/audio/phrase-contour.js';
+import { analyzeSyllable, analyzeContour } from '../../src/shared/audio/pitch-analysis.js';
 
 // Run the browser worker unchanged in a real background thread.
 const workers = [];

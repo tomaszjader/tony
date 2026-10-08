@@ -1,0 +1,92 @@
+@use '../abstracts/tokens' as t;
+
+.analysis {
+  padding: 30px 34px;
+  display: flex;
+  flex-direction: column;
+}
+
+.legend {
+  display: flex;
+  gap: 24px;
+  font-size: 11px;
+  margin-top: 28px;
+  color: #7a8476;
+}
+
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.reference-dot {
+  background: #849d67;
+}
+
+.user-dot {
+  background: t.$color-user;
+}
+
+.plot {
+  position: relative;
+  margin: 20px 0 30px;
+  padding-left: 18px;
+}
+
+.axis-label {
+  position: absolute;
+  left: -46px;
+  top: 120px;
+  transform: rotate(-90deg);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #9da394;
+}
+
+.plot-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #9da394;
+  padding: 0 20px;
+}
+
+.feedback {
+  display: flex;
+  gap: 16px;
+  background: #eff3e7;
+  border-radius: 13px;
+  padding: 22px;
+  margin-top: auto;
+}
+
+.feedback > span {
+  background: #dfe9d1;
+  color: #6c8650;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.feedback p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #7b8971;
+  margin: 0;
+}
+
+@media (max-width: t.$breakpoint-mobile) {
+  .analysis {
+    padding: 25px;
+  }
+}

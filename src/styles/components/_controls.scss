@@ -1,0 +1,111 @@
+@use '../abstracts/tokens' as t;
+
+.settings label,
+.manual-entry label {
+  font-size: 12px;
+  color: #66765b;
+}
+
+.key-row input,
+.manual-entry textarea {
+  width: 100%;
+  border: 1px solid t.$color-border;
+  background: t.$color-surface;
+  color: t.$color-text;
+  font: inherit;
+  padding: 13px;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+
+.phrase-form label,
+.field-label {
+  display: block;
+  font-size: 12px;
+  color: #66765b;
+}
+
+.phrase-form textarea,
+.phrase-form input,
+select {
+  font: inherit;
+  font-size: 14px;
+  color: t.$color-text;
+  background: t.$color-surface;
+  border: 1px solid t.$color-border;
+  padding: 12px;
+  border-radius: 10px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.upload-label {
+  display: block;
+  font-size: 12px;
+  color: #7b8971;
+  margin: 15px 0;
+  line-height: 1.8;
+}
+
+.upload-label input {
+  display: block;
+  max-width: 100%;
+  margin-top: 6px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid t.$color-accent;
+  outline-offset: 2px;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.5;
+    transform: none;
+  }
+}
+
+.primary,
+.secondary {
+  width: 100%;
+  border-radius: 12px;
+  padding: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.secondary {
+  border: 1px solid t.$color-border;
+  background: transparent;
+  color: #435a40;
+}
+
+.primary {
+  border: 0;
+  background: t.$color-primary;
+  color: white;
+
+  &.recording {
+    background: t.$color-recording;
+  }
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid t.$color-user;
+  outline-offset: 3px;
+}

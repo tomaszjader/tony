@@ -1,7 +1,7 @@
-import { target } from './pitch.js';
-import { analyzeSyllable } from './pitch-analysis.js';
-import { saveAttempt } from './storage.js';
-import { download } from './audio-utils.js';
+import { target } from '../../shared/audio/pitch.js';
+import { analyzeSyllable } from '../../shared/audio/pitch-analysis.js';
+import { saveAttempt } from '../../shared/storage.js';
+import { download } from '../../shared/audio/audio-utils.js';
 let currentRecording = null;
 const exercises = [
   ['妈', 'mā', 'mama', 1],

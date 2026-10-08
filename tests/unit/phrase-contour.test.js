@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { contour } from '../src/phrase-contour.js';
+import { contour } from '../../src/shared/audio/phrase-contour.js';
 test('phrase contour preserves pauses and rising melody', () => {
   const rate = 16000;
   let phase = 0;

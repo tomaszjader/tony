@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { transcribeAudio, generateReference } from '../src/openai-audio.js';
-import { encodeWav } from '../src/audio-utils.js';
-import { setApiKey, getApiKey, clearApiKey } from '../src/settings.js';
+import { transcribeAudio, generateReference } from '../../src/shared/transcription/openai-audio.js';
+import { encodeWav } from '../../src/shared/audio/audio-utils.js';
+import { setApiKey, getApiKey, clearApiKey } from '../../src/features/settings/settings.js';
 const audio = encodeWav(Float32Array.from([0, 0.5, -0.5, 1, -1]), 16000);
 test('WAV encoding contains correct PCM header and duration', async () => {
   const data = new DataView(await audio.arrayBuffer());
