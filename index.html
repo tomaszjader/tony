@@ -70,6 +70,16 @@
             ></svg>
             <div class="plot-labels"><span>Początek sylaby</span><span>Koniec sylaby</span></div>
           </div>
+          <div id="toneScore" class="tone-score" hidden>
+            <div><span>ZGODNOŚĆ KSZTAŁTU TONU</span><strong id="toneScoreValue"></strong></div>
+            <meter
+              id="toneScoreMeter"
+              min="0"
+              max="100"
+              value="0"
+              aria-label="Zgodność kształtu tonu, od 0 do 100 punktów"
+            ></meter>
+          </div>
           <div class="feedback" aria-live="polite">
             <span id="resultIcon">↗</span>
             <div>
@@ -77,6 +87,7 @@
               <p id="resultText">
                 Nagraj swoją wymowę, aby zobaczyć przebieg głosu i otrzymać wskazówkę.
               </p>
+              <ul id="toneSuggestions" class="tone-suggestions"></ul>
             </div>
           </div>
           <p class="disclaimer">

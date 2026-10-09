@@ -85,6 +85,44 @@
   margin: 0;
 }
 
+.tone-score {
+  margin-bottom: 18px;
+}
+
+.tone-score > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.tone-score span {
+  font-size: 10px;
+  color: #7a8476;
+}
+
+.tone-score strong {
+  font-size: 24px;
+}
+
+.tone-score meter {
+  width: 100%;
+  height: 16px;
+}
+
+.tone-suggestions {
+  padding-left: 18px;
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #7b8971;
+}
+
+.tone-suggestions:empty {
+  display: none;
+}
+
 @media (max-width: t.$breakpoint-mobile) {
   .analysis {
     padding: 25px;

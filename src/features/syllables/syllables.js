@@ -1,3 +1,4 @@
+import { toneSuggestions } from '../../shared/audio/tone-feedback.js';
 import { target } from '../../shared/audio/pitch.js';
 import { analyzeSyllable } from '../../shared/audio/pitch-analysis.js';
 import { saveAttempt } from '../../shared/storage.js';
@@ -19,13 +20,6 @@ const descriptions = [
   'Ton 2 · wznoszący',
   'Ton 3 · opadający i wznoszący',
   'Ton 4 · szybko opadający',
-];
-const tips = [
-  '',
-  'Utrzymaj głos na jednej wysokości. Wysokiego rejestru nie oceniamy bez kalibracji.',
-  'Zacznij niżej i wyraźnie podnieś głos na końcu.',
-  'Najpierw obniż głos, a następnie podnieś go pod koniec sylaby.',
-  'Zacznij wysoko i zdecydowanie obniż głos.',
 ];
 const referenceAudio = new Audio();
 const audioFiles = ['ma1', 'ma2', 'ma3', 'ma4', 'yi1', 'yu2', 'ni3', 'shi4'];
@@ -49,6 +43,8 @@ $('referenceSpeed').onchange = () => {
   referenceAudio.preservesPitch = true;
 };
 function feedback(title, text) {
+  $('toneScore').hidden = true;
+  $('toneSuggestions').replaceChildren();
   $('resultTitle').textContent = title;
   $('resultText').textContent = text;
 }
@@ -219,13 +215,24 @@ $('record').onclick = async () => {
             'Wykres jest gotowy, ocena jest niepewna',
             'Pokazujemy zmierzony fragment tonu. W nagraniu jest za mało stabilnego głosu, by podać wiarygodny wynik. Spróbuj powiedzieć sylabę płynnie przez około pół sekundy.',
           );
-        } else
+        } else {
           feedback(
-            `${result.score}/100 · ${result.score >= 75 ? 'Kształt tonu wygląda dobrze' : result.score >= 50 ? 'Dobry początek' : 'Spróbuj jeszcze raz'}`,
             result.score >= 75
-              ? 'Twój głos podąża za oczekiwanym przebiegiem. Powtórz ćwiczenie, aby utrwalić ruch głosu.'
-              : tips[chosenTone],
+              ? 'Kształt tonu wygląda dobrze'
+              : result.score >= 50
+                ? 'Dobry początek'
+                : 'Spróbuj jeszcze raz',
+            'W kolejnej próbie:',
           );
+          $('toneScore').hidden = false;
+          $('toneScoreValue').textContent = `${result.score}/100 pkt`;
+          $('toneScoreMeter').value = result.score;
+          for (const suggestion of toneSuggestions(result.points, chosenTone)) {
+            const item = document.createElement('li');
+            item.textContent = suggestion;
+            $('toneSuggestions').append(item);
+          }
+        }
       } catch (e) {
         feedback('Powtórz nagranie', e.message);
       } finally {
