@@ -24,6 +24,23 @@
         <li><span>2</span> Nagraj swoją wymowę</li>
         <li><span>3</span> Porównaj wykres i wskazówkę</li>
       </ol>
+      <section class="card training" aria-labelledby="trainingTitle">
+        <div class="section-top">
+          <h3 id="trainingTitle">Pięć prób. Mały krok każdego dnia.</h3>
+          <span class="pill">KRÓTKI TRENING</span>
+        </div>
+        <p id="trainingStatus" role="status">Przećwicz cztery tony, a potem wróć do trudniejszej sylaby.</p>
+        <progress id="trainingProgress" max="5" value="0" aria-label="Ukończone ćwiczenia" hidden></progress>
+        <ol id="trainingResults" class="training-results" hidden></ol>
+        <div class="training-actions">
+          <button id="startTraining" class="primary">Rozpocznij 5 ćwiczeń</button>
+          <button id="nextTraining" class="primary" hidden>Następne ćwiczenie</button>
+          <button id="repeatTraining" class="secondary" hidden>Powtórz trudniejsze tony</button>
+          <button id="stopTraining" class="secondary" hidden>Zakończ sesję</button>
+        </div>
+        <p id="trainingTotals" class="small"></p>
+        <p id="progressSaveStatus" class="small" role="status" hidden></p>
+      </section>
       <div class="workspace">
         <section class="exercise card">
           <div class="section-top">
@@ -79,6 +96,7 @@
               value="0"
               aria-label="Zgodność kształtu tonu, od 0 do 100 punktów"
             ></meter>
+            <p id="scoreChange" class="small"></p>
           </div>
           <div class="feedback" aria-live="polite">
             <span id="resultIcon">↗</span>

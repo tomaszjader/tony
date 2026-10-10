@@ -1,4 +1,5 @@
 import { toneSuggestions } from '../../shared/audio/tone-feedback.js';
+import { setupTraining } from './training-ui.js';
 import { target } from '../../shared/audio/pitch.js';
 import { analyzeSyllable } from '../../shared/audio/pitch-analysis.js';
 import { saveAttempt } from '../../shared/storage.js';
@@ -31,6 +32,11 @@ let index = 0,
   timer,
   url,
   busy = false;
+let phraseBusy = false;
+const training = setupTraining(exercises, (chosenIndex) => {
+  index = chosenIndex;
+  render();
+});
 referenceAudio.onplay = () => {
   $('reference').textContent = '♫  Odtwarzam wzór…';
 };
@@ -100,6 +106,7 @@ function render() {
     'Nagraj swoją wymowę, aby zobaczyć przebieg głosu i otrzymać wskazówkę.',
   );
   draw();
+  training.refresh();
 }
 function lock(value) {
   busy = value;
@@ -108,17 +115,20 @@ function lock(value) {
   $('tones')
     .querySelectorAll('button')
     .forEach((b) => (b.disabled = value));
+  training.setLocked(value || phraseBusy);
 }
 $('next').onclick = () => {
+  if (busy || training.active()) return;
   index = (index + 1) % exercises.length;
   render();
 };
 $('previous').onclick = () => {
+  if (busy || training.active()) return;
   index = (index + exercises.length - 1) % exercises.length;
   render();
 };
 $('tones').onclick = (e) => {
-  if (busy) return;
+  if (busy || training.active()) return;
   const t = Number(e.target.dataset.tone);
   if (t) {
     index = exercises.findIndex((a) => a[3] === t);
@@ -227,6 +237,7 @@ $('record').onclick = async () => {
           $('toneScore').hidden = false;
           $('toneScoreValue').textContent = `${result.score}/100 pkt`;
           $('toneScoreMeter').value = result.score;
+          training.result(index, result);
           for (const suggestion of toneSuggestions(result.points, chosenTone)) {
             const item = document.createElement('li');
             item.textContent = suggestion;
@@ -277,6 +288,8 @@ $('downloadSyllable').onclick = () => {
     );
 };
 window.addEventListener('tony-phrase-busy', (e) => {
+  phraseBusy = e.detail;
+  training.setLocked(busy || phraseBusy);
   for (const id of ['record', 'reference']) $(id).disabled = e.detail;
 });
 window.addEventListener('pagehide', () => {
