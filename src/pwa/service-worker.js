@@ -29,7 +29,9 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || new URL(request.url).origin !== location.origin) return;
   event.respondWith(
     (async () => {
-      const cached = await caches.match(request, { ignoreSearch: true });
+      // Precached same-origin static files may have Vary: Origin from hosting.
+      // Module requests include Origin, unlike the installation fetches.
+      const cached = await caches.match(request, { ignoreSearch: true, ignoreVary: true });
       if (cached && request.mode !== 'navigate') return cached;
       try {
         const response = await fetch(request);

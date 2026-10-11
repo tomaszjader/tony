@@ -1,13 +1,22 @@
 import {
-  readProgress, emptyProgress, recordProgress, trainingQueue, createSession,
-  acceptResult, advanceSession, sessionSummary,
+  readProgress,
+  emptyProgress,
+  recordProgress,
+  trainingQueue,
+  createSession,
+  acceptResult,
+  advanceSession,
+  sessionSummary,
 } from './training.js';
 
 export function setupTraining(exercises, selectExercise) {
   const $ = (id) => document.getElementById(id);
   let progress;
-  try { progress = readProgress(window.localStorage); }
-  catch { progress = emptyProgress(); }
+  try {
+    progress = readProgress(window.localStorage);
+  } catch {
+    progress = emptyProgress();
+  }
   let session = null;
   let locked = false;
   const active = () => session && !session.complete;
@@ -17,7 +26,8 @@ export function setupTraining(exercises, selectExercise) {
       localStorage.setItem('tony-progress', JSON.stringify(progress));
       $('progressSaveStatus').hidden = true;
     } catch {
-      $('progressSaveStatus').textContent = 'Postęp jest dostępny tylko w tej karcie. Nie udało się zapisać go w przeglądarce.';
+      $('progressSaveStatus').textContent =
+        'Postęp jest dostępny tylko w tej karcie. Nie udało się zapisać go w przeglądarce.';
       $('progressSaveStatus').hidden = false;
     }
   }
@@ -33,7 +43,9 @@ export function setupTraining(exercises, selectExercise) {
     for (const id of ['startTraining', 'stopTraining', 'repeatTraining']) $(id).disabled = locked;
     $('nextTraining').disabled = locked || !running || session.results[session.position] === null;
     $('next').disabled = $('previous').disabled = locked || !!running;
-    $('tones').querySelectorAll('button').forEach((button) => button.disabled = locked || !!running);
+    $('tones')
+      .querySelectorAll('button')
+      .forEach((button) => (button.disabled = locked || !!running));
     if (session) {
       const completed = session.results.filter((score) => score !== null).length;
       $('trainingProgress').value = completed;
@@ -47,15 +59,21 @@ export function setupTraining(exercises, selectExercise) {
       });
       if (running) {
         const ready = session.results[session.position] !== null;
-        $('trainingStatus').textContent = `Ćwiczenie ${session.position + 1} z 5 · ${exercises[session.queue[session.position]][1]}. ${ready ? 'Możesz poprawić tę próbę lub przejść dalej.' : 'Posłuchaj wzorca i nagraj sylabę. Do przejścia dalej potrzebny jest pewny wynik.'}`;
-        $('nextTraining').textContent = session.position === 4 ? 'Zobacz podsumowanie' : 'Następne ćwiczenie';
+        $('trainingStatus').textContent =
+          `Ćwiczenie ${session.position + 1} z 5 · ${exercises[session.queue[session.position]][1]}. ${ready ? 'Możesz poprawić tę próbę lub przejść dalej.' : 'Posłuchaj wzorca i nagraj sylabę. Do przejścia dalej potrzebny jest pewny wynik.'}`;
+        $('nextTraining').textContent =
+          session.position === 4 ? 'Zobacz podsumowanie' : 'Następne ćwiczenie';
       } else {
         const { average, difficult } = sessionSummary(session);
-        $('trainingStatus').textContent = `Sesja ukończona · średnio ${average}/100 pkt. ${difficult.length ? 'Wróć do sylab z wynikiem poniżej 75 punktów.' : 'Wszystkie próby mają co najmniej 75 punktów. Spróbuj kolejnej sesji.'}`;
+        $('trainingStatus').textContent =
+          `Sesja ukończona · średnio ${average}/100 pkt. ${difficult.length ? 'Wróć do sylab z wynikiem poniżej 75 punktów.' : 'Wszystkie próby mają co najmniej 75 punktów. Spróbuj kolejnej sesji.'}`;
       }
     }
     const count = Object.values(progress.exercises).reduce((sum, entry) => sum + entry.count, 0);
-    const recent = progress.sessions.slice(-3).map((entry) => `${entry.average} pkt`).join(' → ');
+    const recent = progress.sessions
+      .slice(-3)
+      .map((entry) => `${entry.average} pkt`)
+      .join(' → ');
     $('trainingTotals').textContent = count
       ? `Ocenione próby: ${count}. ${recent ? `Ostatnie sesje (średnia): ${recent}.` : 'Ukończ sesję, aby zobaczyć jej średni wynik.'} Postęp zapisujemy w tej przeglądarce.`
       : 'Wyniki zaczną się zapisywać po pierwszej ocenionej próbie.';
@@ -63,7 +81,13 @@ export function setupTraining(exercises, selectExercise) {
 
   function start(preferred = []) {
     if (locked) return;
-    session = createSession(trainingQueue(progress, exercises.map((exercise) => exercise[3]), preferred));
+    session = createSession(
+      trainingQueue(
+        progress,
+        exercises.map((exercise) => exercise[3]),
+        preferred,
+      ),
+    );
     selectExercise(session.queue[0]);
     refresh();
     $('reference').focus();
@@ -87,21 +111,26 @@ export function setupTraining(exercises, selectExercise) {
   $('stopTraining').onclick = () => {
     if (locked) return;
     session = null;
-    $('trainingStatus').textContent = 'Sesja zakończona. Wyniki ocenionych prób zachowano. Możesz ćwiczyć swobodnie lub rozpocząć nową sesję.';
+    $('trainingStatus').textContent =
+      'Sesja zakończona. Wyniki ocenionych prób zachowano. Możesz ćwiczyć swobodnie lub rozpocząć nową sesję.';
     refresh();
   };
 
   return {
     active,
     refresh,
-    setLocked(value) { locked = value; refresh(); },
+    setLocked(value) {
+      locked = value;
+      refresh();
+    },
     result(id, result) {
       if (result.uncertain) return;
       const difference = recordProgress(progress, id, result.score);
       const entry = progress.exercises[id];
-      $('scoreChange').textContent = difference === null
-        ? `Pierwsza oceniona próba tej sylaby. Najlepszy wynik: ${entry.best} pkt.`
-        : `Względem poprzedniej próby: ${difference > 0 ? '+' : ''}${difference} pkt. Najlepszy wynik: ${entry.best} pkt · próby: ${entry.count}.`;
+      $('scoreChange').textContent =
+        difference === null
+          ? `Pierwsza oceniona próba tej sylaby. Najlepszy wynik: ${entry.best} pkt.`
+          : `Względem poprzedniej próby: ${difference > 0 ? '+' : ''}${difference} pkt. Najlepszy wynik: ${entry.best} pkt · próby: ${entry.count}.`;
       if (active() && session.queue[session.position] === id) acceptResult(session, result);
       persist();
       refresh();

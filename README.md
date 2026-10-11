@@ -8,6 +8,13 @@ Adres aplikacji: https://tomaszjader.github.io/tony/
 
 Workflow `.github/workflows/pages.yml` sprawdza formatowanie, uruchamia testy,
 buduje aplikację i publikuje `dist/` po każdym pushu do `main`.
+Na pull requestach do `main` wykonuje te same kontrole bez publikacji.
+Testy przeglądarkowe Playwright sprawdzają produkcyjny build w Chromium:
+import MP3, wykres F0, ręczne porównanie tekstu, pobieranie WAV, trwałość i usuwanie
+historii oraz odtwarzanie wzorca i analizę audio bez internetu. Nie wymagają klucza
+API ani pobierania modelu Whisper. Dotychczasowe strony `smoke.html` i
+`integration.html` pozostają ręcznymi testami rzeczywistego modelu Whisper.
+Przy niepowodzeniu CI udostępnia raport, zrzuty ekranu i ślady wykonania przez 7 dni.
 W ustawieniach repozytorium **Settings → Pages → Source** wybierz **GitHub Actions**.
 Można też uruchomić publikację ręcznie przez **Actions → Deploy GitHub Pages → Run workflow**.
 Ścieżki względne w Vite obsługują podkatalog `/tony/`; mikrofon działa przez HTTPS.
@@ -73,6 +80,13 @@ Otwórz http://localhost:3000. Vite udostępnia wyłącznie pliki i narzędzia d
 npm test
 npm run build
 npm run preview
+```
+
+Automatyczne testy przeglądarkowe (komenda sama buduje aplikację i uruchamia preview):
+
+```sh
+npx playwright install chromium
+npm run test:browser
 ```
 
 `dist/` zawiera gotowe pliki do dowolnego hostingu statycznego, również GitHub Pages w podkatalogu. Nie otwieraj index.html przez `file://`: moduły, mikrofon i pamięć offline potrzebują HTTP/HTTPS. Produkcyjna wersja ma manifest PWA i service worker: po pierwszym pełnym wczytaniu zachowuje pliki aplikacji i gotowe wzorce do pracy offline. Model Whisper jest pobierany i buforowany osobno.
