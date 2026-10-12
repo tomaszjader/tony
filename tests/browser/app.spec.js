@@ -3,6 +3,37 @@ import { resolve } from 'node:path';
 
 const audio = resolve('public/audio/phrase1.mp3');
 
+test('historical difficult syllables and weekly results survive reload', async ({ page }) => {
+  await page.addInitScript(() => {
+    if (localStorage.getItem('tony-progress')) return;
+    const date = new Date();
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    localStorage.setItem(
+      'tony-progress',
+      JSON.stringify({
+        exercises: {
+          1: { last: 95, best: 95, count: 3, recent: [30, 40, 95] },
+          3: { last: 90, best: 90, count: 1, recent: [90] },
+        },
+        sessions: [],
+        days: { [key]: { count: 4, total: 255 } },
+      }),
+    );
+  });
+  await page.goto('/');
+  await page.getByText('Postęp z ostatniego tygodnia', { exact: true }).click();
+  await expect(page.locator('#weeklySummary')).toContainText('4 ocenionych prób');
+  await expect(page.locator('#weeklyProgress li')).toHaveCount(7);
+  await page.locator('#reviewDifficult').click();
+  await expect(page.locator('#pinyin')).toHaveText('má');
+  await expect(page.locator('#trainingResults li')).toHaveCount(5);
+  await expect(page.locator('#trainingResults')).not.toContainText('mà');
+  await page.reload();
+  await expect(page.locator('#reviewDifficult')).toBeVisible();
+  await page.getByText('Postęp z ostatniego tygodnia', { exact: true }).click();
+  await expect(page.locator('#weeklySummary')).toContainText('4 ocenionych prób');
+});
+
 async function importRecording(page) {
   await page.locator('#phraseUpload').setInputFiles(audio);
   await expect(page.locator('#recordingHistory .history-row')).toHaveCount(1);

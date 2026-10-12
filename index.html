@@ -42,11 +42,20 @@
         <ol id="trainingResults" class="training-results" hidden></ol>
         <div class="training-actions">
           <button id="startTraining" class="primary">Rozpocznij 5 ćwiczeń</button>
+          <button id="reviewDifficult" class="secondary" hidden>
+            Powtórz trudne sylaby z historii
+          </button>
           <button id="nextTraining" class="primary" hidden>Następne ćwiczenie</button>
           <button id="repeatTraining" class="secondary" hidden>Powtórz trudniejsze tony</button>
           <button id="stopTraining" class="secondary" hidden>Zakończ sesję</button>
         </div>
         <p id="trainingTotals" class="small"></p>
+        <p id="reviewNote" class="small"></p>
+        <details>
+          <summary>Postęp z ostatniego tygodnia</summary>
+          <p id="weeklySummary" class="small"></p>
+          <ol id="weeklyProgress" aria-label="Wyniki dzienne z ostatnich 7 dni"></ol>
+        </details>
         <p id="progressSaveStatus" class="small" role="status" hidden></p>
       </section>
       <div class="workspace">

@@ -1,4 +1,30 @@
-export const emptyProgress = () => ({ exercises: {}, sessions: [] });
+export const emptyProgress = () => ({ exercises: {}, sessions: [], days: {} });
+
+const validScore = (score) => Number.isInteger(score) && score >= 0 && score <= 100;
+export function dayKey(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+export function weeklyProgress(progress, now = new Date()) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(now);
+    date.setDate(date.getDate() - 6 + i);
+    const key = dayKey(date);
+    const entry = progress.days?.[key];
+    return {
+      date,
+      key,
+      count: entry?.count ?? 0,
+      average: entry ? Math.round(entry.total / entry.count) : null,
+    };
+  });
+}
+
+export function difficulty(entry) {
+  if (!entry) return -1;
+  const scores = entry.recent?.length ? entry.recent : [entry.last];
+  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+}
 
 export function readProgress(storage) {
   try {
@@ -23,10 +49,30 @@ export function readProgress(storage) {
         Number.isInteger(entry.count) &&
         entry.count > 0
       )
-        exercises[id] = entry;
+        exercises[id] = {
+          ...entry,
+          recent: Array.isArray(entry.recent)
+            ? entry.recent.filter(validScore).slice(-5)
+            : [entry.last],
+        };
     }
     return {
       exercises,
+      days: Object.fromEntries(
+        Object.entries(data.days || {})
+          .filter(
+            ([key, entry]) =>
+              /^\d{4}-\d{2}-\d{2}$/.test(key) &&
+              entry &&
+              Number.isInteger(entry.count) &&
+              entry.count > 0 &&
+              Number.isFinite(entry.total) &&
+              entry.total >= 0 &&
+              entry.total <= entry.count * 100,
+          )
+          .sort(([a], [b]) => a.localeCompare(b))
+          .slice(-90),
+      ),
       sessions: data.sessions
         .filter(
           (s) =>
@@ -43,20 +89,30 @@ export function readProgress(storage) {
   }
 }
 
-export function recordProgress(progress, id, score) {
+export function recordProgress(progress, id, score, now = new Date()) {
   const previous = progress.exercises[id];
   progress.exercises[id] = {
     last: score,
     best: Math.max(previous?.best ?? 0, score),
     count: (previous?.count ?? 0) + 1,
+    recent: [...(previous?.recent ?? (previous ? [previous.last] : [])), score].slice(-5),
   };
+  progress.days ??= {};
+  const key = dayKey(now);
+  const day = progress.days[key] ?? { count: 0, total: 0 };
+  progress.days[key] = { count: day.count + 1, total: day.total + score };
+  progress.days = Object.fromEntries(
+    Object.entries(progress.days)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-90),
+  );
   return previous ? score - previous.last : null;
 }
 
 export function trainingQueue(progress, tones, preferred = []) {
   const candidates = preferred.length ? [...new Set(preferred)] : tones.map((_, i) => i);
   candidates.sort(
-    (a, b) => (progress.exercises[a]?.last ?? -1) - (progress.exercises[b]?.last ?? -1) || a - b,
+    (a, b) => difficulty(progress.exercises[a]) - difficulty(progress.exercises[b]) || a - b,
   );
   if (preferred.length)
     return Array.from({ length: 5 }, (_, i) => candidates[i % candidates.length]);

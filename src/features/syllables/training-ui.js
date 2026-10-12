@@ -7,6 +7,8 @@ import {
   acceptResult,
   advanceSession,
   sessionSummary,
+  weeklyProgress,
+  difficulty,
 } from './training.js';
 
 export function setupTraining(exercises, selectExercise) {
@@ -77,6 +79,29 @@ export function setupTraining(exercises, selectExercise) {
     $('trainingTotals').textContent = count
       ? `Ocenione próby: ${count}. ${recent ? `Ostatnie sesje (średnia): ${recent}.` : 'Ukończ sesję, aby zobaczyć jej średni wynik.'} Postęp zapisujemy w tej przeglądarce.`
       : 'Wyniki zaczną się zapisywać po pierwszej ocenionej próbie.';
+    const days = weeklyProgress(progress);
+    const total = days.reduce((sum, day) => sum + day.count, 0);
+    $('weeklySummary').textContent =
+      `Ostatnie 7 dni: ${total} ocenionych prób · ${days.filter((day) => day.count).length} dni ćwiczeń. Średnia dotyczy kształtu tonu; zestaw sylab może się różnić.`;
+    $('weeklyProgress').replaceChildren();
+    for (const day of days) {
+      const item = document.createElement('li');
+      item.textContent = `${day.date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'numeric' })} · ${day.count ? `${day.count} prób · ${day.average} pkt` : 'bez prób'}`;
+      $('weeklyProgress').append(item);
+    }
+    const difficult = exercises
+      .map((exercise, id) => ({
+        id,
+        label: exercise[1],
+        score: difficulty(progress.exercises[id]),
+      }))
+      .filter((entry) => entry.score >= 0 && entry.score < 75)
+      .sort((a, b) => a.score - b.score);
+    $('reviewDifficult').hidden = !difficult.length;
+    $('reviewDifficult').disabled = locked || !!running;
+    $('reviewNote').textContent = difficult.length
+      ? `Do powtórki: ${difficult.map((entry) => entry.label).join(', ')}. Dobór na podstawie średniej z maksymalnie 5 ostatnich prób każdej sylaby.`
+      : 'Trudniejsze sylaby dobierzemy na podstawie ostatnich ocenionych prób. Nowe sesje obejmują wszystkie cztery tony.';
   }
 
   function start(preferred = []) {
@@ -93,6 +118,15 @@ export function setupTraining(exercises, selectExercise) {
     $('reference').focus();
   }
   $('startTraining').onclick = () => start();
+  $('reviewDifficult').onclick = () =>
+    start(
+      exercises
+        .map((_, id) => id)
+        .filter((id) => {
+          const score = difficulty(progress.exercises[id]);
+          return score >= 0 && score < 75;
+        }),
+    );
   $('repeatTraining').onclick = () => {
     if (session?.complete) start(sessionSummary(session).difficult);
   };
