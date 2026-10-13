@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { unzipSync, strFromU8 } from 'fflate';
 
 const audio = resolve('public/audio/phrase1.mp3');
 
@@ -61,6 +63,15 @@ test('import audio, compare text, reopen history and delete recording', async ({
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/^tony-.*\.wav$/);
   expect(await download.failure()).toBeNull();
+  const archivePromise = page.waitForEvent('download');
+  await page.locator('#exportHistory').click();
+  const archive = await archivePromise;
+  expect(archive.suggestedFilename()).toMatch(/^tony-historia-\d{4}-\d{2}-\d{2}\.zip$/);
+  const files = unzipSync(await readFile(await archive.path()));
+  const history = JSON.parse(strFromU8(files['historia.json']));
+  expect(history.recordings).toHaveLength(1);
+  expect(history.recordings[0].transcript).toBe('你好，我想学习中文。');
+  expect(files[history.recordings[0].file].length).toBeGreaterThan(44);
   await page.getByRole('button', { name: 'Usuń nagranie', exact: true }).click();
   await expect(page.locator('#recordingHistory .history-row')).toHaveCount(0);
   await page.reload();

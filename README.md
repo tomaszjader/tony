@@ -121,6 +121,15 @@ Klucza nie trzeba przekazywać do czatu. API obciąża konto OpenAI użytkownika
 - Historia pokazuje 20 najnowszych prób. Nagranie można otworzyć, usunąć, ponownie rozpoznać i pobrać. Próby sylab również zapisują się w historii. Pobierz ważne pliki: pamięć przeglądarki może być czyszczona lub usunięta przez użytkownika.
 - Odsłuch ma tempo 1×, 0,8× i 0,6× z zachowaniem wysokości głosu.
 
+## Kopia historii
+
+Przycisk „Pobierz całą historię ZIP” pod lokalnymi nagraniami eksportuje wszystkie
+zapisane próby (także starsze niż 20 widocznych), oryginalne pliki audio oraz
+`historia.json` z datami, frazami, transkrypcjami i zapisanym postępem ćwiczeń.
+Eksport działa lokalnie. Starsze próby sylab nie mają indywidualnej punktacji
+w historii; kopia zawiera dostępne wyniki zbiorcze. Archiwum można rozpakować
+i odsłuchać; import kopii do aplikacji nie jest obsługiwany.
+
 ## Granice oceny
 
 Ocena pojedynczej sylaby porównuje kształt głosu z uproszczonym wzorcem. Nie mierzy poprawności samogłosek, znaczenia ani wysokiego rejestru tonu 1 bez kalibracji. Porównanie całej frazy pokazuje rozpoznane znaki, ich pinyin i zgodność sylab. Procent nie jest oceną akustyczną tonów; pinyin pochodzi z tekstu. Wykres frazy normalizuje czas i wysokość, bez wyrównania granic sylab i bez sandhi. Wyniki należy zweryfikować na różnych głosach z nauczycielem mandaryńskiego.

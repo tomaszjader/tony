@@ -16,6 +16,8 @@ import {
   SpeechRecognitionClass,
 } from '../../shared/transcription/browser-speech.js';
 import { localWhisper, resample16k } from '../../shared/transcription/local-whisper.js';
+import { exportHistory } from '../../shared/history-export.js';
+import { readProgress, emptyProgress, dayKey } from '../syllables/training.js';
 const $ = (id) => document.getElementById(id),
   ref = new Audio();
 const presets = [
@@ -624,6 +626,33 @@ $('manualApply').onclick = async () => {
     await persistAttempt(lastAttempt);
   }
   status('Porównanie wpisanego tekstu gotowe. Ten tryb nie rozpoznaje nagrania automatycznie.');
+};
+$('exportHistory').onclick = async () => {
+  const button = $('exportHistory');
+  button.disabled = true;
+  $('exportHistoryStatus').textContent = 'Przygotowuję kopię historii…';
+  try {
+    const attempts = await loadAttempts();
+    let progress;
+    try {
+      progress = readProgress(window.localStorage);
+    } catch {
+      progress = emptyProgress();
+    }
+    if (!attempts.length && !Object.keys(progress.exercises).length) {
+      $('exportHistoryStatus').textContent = 'Brak nagrań i wyników do eksportu.';
+      return;
+    }
+    const archive = await exportHistory(attempts, progress);
+    download(archive, `tony-historia-${dayKey()}.zip`);
+    $('exportHistoryStatus').textContent =
+      `Kopia gotowa: ${attempts.length} nagrań i zapisany postęp ćwiczeń. Pobieranie ZIP rozpoczęte.`;
+  } catch {
+    $('exportHistoryStatus').textContent =
+      'Nie udało się przygotować kopii historii. Spróbuj ponownie; pojedyncze nagrania możesz pobrać po ich otwarciu.';
+  } finally {
+    button.disabled = false;
+  }
 };
 $('transcriptionMode').onchange = () => {
   const mode = $('transcriptionMode').value;
