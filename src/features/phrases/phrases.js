@@ -232,6 +232,25 @@ function list() {
     el.append(o);
   });
 }
+function practiceTonePair(text) {
+  if (working || syllableBusy) return;
+  let index = phrases.findIndex((phrase) => phrase.text === text);
+  if (index < 0) {
+    const preset = presets.find((phrase) => phrase.text === text);
+    if (!preset) return;
+    phrases.push(preset);
+    savePhrases();
+    list();
+    index = phrases.length - 1;
+  }
+  select(index);
+  $('phrases').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('phraseRecord').focus({ preventScroll: true });
+  status('Wybrano tę frazę. Odtwórz wzór, a potem nagraj swoją wymowę.');
+}
+document.querySelectorAll('[data-tone-pair-phrase]').forEach((button) => {
+  button.addEventListener('click', () => practiceTonePair(button.dataset.tonePairPhrase));
+});
 function showTranscript(text, source) {
   const result = toPinyin(text);
   $('recognized').textContent = text || 'Nie rozpoznano mowy.';
