@@ -6,3 +6,4 @@ public/audio/
 .playwright-mcp/
 playwright-report/
 test-results/
+index.html
